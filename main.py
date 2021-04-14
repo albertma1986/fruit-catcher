@@ -1,0 +1,63 @@
+import pygame as pg
+from pygame.locals import *
+import random
+
+
+class Game:
+    def __init__(self):
+        pg.init()
+        pg.display.set_caption("Fruit Catcher")
+        self.scn_width = 1280
+        self.scn_height = 720
+        self.FPS = 60
+        self.clock = pg.time.Clock()
+        self.bgpic = pg.image.load("bg01.jpg")
+        self.bgpic = pg.transform.scale(self.bgpic, (self.scn_width, self.scn_height))
+        self.screen = pg.display.set_mode((self.scn_width, self.scn_height))
+        self.fruits = []
+        self.running = True
+        self.start_t = pg.time.get_ticks()
+        self.end_t = pg.time.get_ticks()
+        self.fruits_list = ["apple", "banana", "cherry", "grapes", "green_apple", "lemon",
+                            "mango", "orange", "pear", "strawberry", "watermelon"]
+
+    def main(self):
+        while self.running:
+            for event in pg.event.get():
+                if event.type == QUIT:
+                    self.running = False
+            self.screen.blit(self.bgpic, (0, 0))
+            self.end_t = pg.time.get_ticks()
+            if self.end_t - self.start_t > 2000:
+                self.start_t = self.end_t
+                fname = random.choice(self.fruits_list)
+                f = Fruit(fname)
+                x = random.randint(0, self.scn_width - f.img_rect.width)
+                f.init_loc(x)
+                self.fruits.append(f)
+            for f in self.fruits:
+                f.drop()
+                self.screen.blit(f.img, f.img_rect)
+            pg.display.flip()
+            self.clock.tick(self.FPS)
+
+
+class Fruit:
+    def __init__(self, kind):
+        self.kind = kind
+        self.x_speed = 0
+        self.y_speed = 3
+        self.img = pg.image.load(kind+".png")
+        self.img = pg.transform.scale(self.img, (int(self.img.get_width()/2), int(self.img.get_height()/2)))
+        self.img_rect = self.img.get_rect()
+
+    def init_loc(self, x):
+        self.img_rect.topleft = (x, 0)
+
+    def drop(self):
+        self.img_rect.move_ip(self.x_speed, self.y_speed)
+
+
+if __name__ == "__main__":
+    game = Game()
+    game.main()
